@@ -1,8 +1,8 @@
 import {
   getSession,
   getAccessToken,
-  withApiAuthRequired,
-} from "@auth0/nextjs-auth0";
+  withApiAuthRequired
+} from '@auth0/nextjs-auth0';
 
 export default withApiAuthRequired(async function handler(req, res) {
   try {
@@ -12,78 +12,78 @@ export default withApiAuthRequired(async function handler(req, res) {
     const baseUrl = `${process.env.MONGODB_DATA_API_URL}/action`;
 
     switch (req.method) {
-      case "GET":
+      case 'GET':
         await new Promise((resolve) => setTimeout(resolve, 2000));
         const readData = await fetch(`${baseUrl}/findOne`, {
-          method: "POST",
+          method: 'POST',
           headers: {
-            "Content-Type": "application/json",
-            "Access-Control-Request-Headers": "*",
-            jwtTokenString: accessToken,
+            'Content-Type': 'application/json',
+            'Access-Control-Request-Headers': '*',
+            jwtTokenString: accessToken
           },
           body: JSON.stringify({
             dataSource: process.env.MONGODB_DATA_SOURCE,
-            database: "social_butterfly",
-            collection: "users",
-          }),
+            database: 'NEW_DATABASE_NAME',
+            collection: 'users'
+          })
         });
 
         const readDataJson = await readData.json();
 
         if (!readDataJson.document.email) {
           await fetch(`${baseUrl}/updateOne`, {
-            method: "POST",
+            method: 'POST',
             headers: {
-              "Content-Type": "application/json",
-              "Access-Control-Request-Headers": "*",
-              jwtTokenString: accessToken,
+              'Content-Type': 'application/json',
+              'Access-Control-Request-Headers': '*',
+              jwtTokenString: accessToken
             },
             body: JSON.stringify({
               dataSource: process.env.MONGODB_DATA_SOURCE,
-              database: "social_butterfly",
-              collection: "users",
+              database: 'NEW_DATABASE_NAME',
+              collection: 'users',
               filter: { _id: { $oid: readDataJson.document._id } },
               update: {
                 $set: {
                   email: user.email,
                   name: user.name,
                   picture: user.picture,
-                  nickname: user.nickname,
-                },
-              },
-            }),
+                  nickname: user.nickname
+                }
+              }
+            })
           });
           readDataJson.document = {
             ...readDataJson.document,
             email: user.email,
             name: user.name,
             picture: user.picture,
-            nickname: user.nickname,
+            nickname: user.nickname
           };
         }
 
         res.status(200).json(readDataJson.document);
         break;
-      case "PUT":
+      case 'PUT':
         const updateData = await fetch(`${baseUrl}/updateOne`, {
-          method: "POST",
+          method: 'POST',
           headers: {
-            "Content-Type": "application/json",
-            "Access-Control-Request-Headers": "*",
-            jwtTokenString: accessToken,
+            'Content-Type': 'application/json',
+            'Access-Control-Request-Headers': '*',
+            jwtTokenString: accessToken
           },
           body: JSON.stringify({
             dataSource: process.env.MONGODB_DATA_SOURCE,
-            database: "social_butterfly",
-            collection: "users",
+            database: 'NEW_DATABASE_NAME',
+            collection: 'users',
             filter: { _id: { $oid: req.body._id } },
             update: {
               $set: {
                 nickname: req.body.nickname,
-                picture: req.body.picture,
-              },
-            },
-          }),
+                picture: req.body.picture
+              }
+            }
+          })
         });
         const updateDataJson = await updateData.json();
         res.status(200).json(updateDataJson);
